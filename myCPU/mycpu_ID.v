@@ -32,18 +32,7 @@ module stage_2_ID (
 wire readygo_2;
 assign readygo_2=1'b1;
 
-//assign valid_2=1'b1;
-
-/*reg stage_2_blockflag; // Blocks Signal Flow from IF to ID if decoding a BRANCH-type instruction
-always @(posedge clk ) begin
-    if (reset) stage_2_blockflag <= 1'b0;
-    else if (br_inst) stage_2_blockflag <= ~stage_2_blockflag;
-end
-
-assign allow_2 = ~br_inst || (br_inst && stage_2_blockflag); // 当前解码 Branch时，忽略Branch紧接下来的一条指令，在下一拍再由Branch决定。
-*/
-
-assign allow_2=valid_2;
+assign allow_2=exists_hazard;
 
 //如果当前指令是分支，那么下一拍invalid
 //阻塞：如果当前出现写后读冲突，那么设置invalid直到冲突消失
@@ -52,8 +41,6 @@ always @(posedge clk) begin
     else if (~next_valid) valid_2<=1'b0;
     else valid_2<=valid_1;
 end
-
-wire hazard_block
 
 wire next_valid;
 wire next_invalid;
@@ -297,8 +284,9 @@ assign fw5_raddr2_eq  = (rf_waddr_5_fwd == rf_raddr2);
 assign fw5_hazard_1   = fw5_addrValid && fw5_raddr1_eq && valid_5;
 assign fw5_hazard_2   = fw5_addrValid && fw5_raddr2_eq && valid_5;
 
-assign exists_hazard = ((fw3_hazard_1 || fw4_hazard_1 || fw5_hazard_1) && (~src1_is_pc))|| 
-                       ((fw3_hazard_2 || fw4_hazard_2 || fw5_hazard_2) && (~src2_is_imm));
+assign exists_hazard = (((fw3_hazard_1 || fw4_hazard_1 || fw5_hazard_1) && (~src1_is_pc))|| 
+                        ((fw3_hazard_2 || fw4_hazard_2 || fw5_hazard_2) && (~src2_is_imm)))
+                       && rf_re;
 
 
 // GPR
