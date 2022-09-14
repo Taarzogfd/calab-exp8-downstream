@@ -136,7 +136,7 @@ wire [69:0] stage_4_to_5;
     .reset (reset),
     .valid_4 (valid_4),
     .allow_5 (allow_5),
-    //.valid_5 (valid_5),
+    .valid_5 (valid_5),
     .stage_4_to_5 (stage_4_to_5),
     .rf_we (rf_we),
     .rf_waddr (rf_waddr),
