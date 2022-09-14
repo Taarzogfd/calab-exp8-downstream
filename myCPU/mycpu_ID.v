@@ -42,6 +42,7 @@ assign allow_2 = ~br_inst || (br_inst && stage_2_blockflag); // 当前解码 Bra
 assign allow_2=1'b1;
 
 //如果当前指令是分支，那么下一拍invalid
+//阻塞：如果当前出现写后读冲突，那么
 always @(posedge clk) begin
     if (reset) valid_2<=1'b0;
     else if (~next_valid) valid_2<=1'b0;
