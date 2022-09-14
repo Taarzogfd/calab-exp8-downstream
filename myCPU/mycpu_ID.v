@@ -8,6 +8,10 @@ module stage_2_ID (
     output  reg valid_2,
     input  wire allow_3,
 
+    input  wire valid_3,
+    input  wire valid_4,
+    input  wire valid_5,
+
     input  wire [63:0] stage_1_to_2,
     output wire        br_taken,
     output wire [31:0] br_target,
@@ -270,20 +274,20 @@ assign dest          = dst_is_r1 ? 5'd1 : rd;
 assign fw3_addrValid = |rf_waddr_3_fwd; // 若该阶段的rf_we=0，地址输入时直接为0
 assign fw3_raddr1_eq  = (rf_waddr_3_fwd == rf_raddr1);
 assign fw3_raddr2_eq  = (rf_waddr_3_fwd == rf_raddr2);
-assign fw3_hazard_1   = fw3_addrValid && fw3_raddr1_eq;
-assign fw3_hazard_2   = fw3_addrValid && fw3_raddr2_eq;
+assign fw3_hazard_1   = fw3_addrValid && fw3_raddr1_eq && valid_3;
+assign fw3_hazard_2   = fw3_addrValid && fw3_raddr2_eq && valid_3;
 
 assign fw4_addrValid = |rf_waddr_4_fwd; // 若该阶段的rf_we=0，地址输入时直接为0
 assign fw4_raddr1_eq  = (rf_waddr_4_fwd == rf_raddr1);
 assign fw4_raddr2_eq  = (rf_waddr_4_fwd == rf_raddr2);
-assign fw4_hazard_1   = fw4_addrValid && fw4_raddr1_eq;
-assign fw4_hazard_2   = fw4_addrValid && fw4_raddr2_eq;
+assign fw4_hazard_1   = fw4_addrValid && fw4_raddr1_eq && valid_4;
+assign fw4_hazard_2   = fw4_addrValid && fw4_raddr2_eq && valid_4;
 
 assign fw5_addrValid = |rf_waddr_5_fwd; // 若该阶段的rf_we=0，地址输入时直接为0
 assign fw5_raddr1_eq  = (rf_waddr_5_fwd == rf_raddr1);
 assign fw5_raddr2_eq  = (rf_waddr_5_fwd == rf_raddr2);
-assign fw5_hazard_1   = fw5_addrValid && fw5_raddr1_eq;
-assign fw5_hazard_2   = fw5_addrValid && fw5_raddr2_eq;
+assign fw5_hazard_1   = fw5_addrValid && fw5_raddr1_eq && valid_5;
+assign fw5_hazard_2   = fw5_addrValid && fw5_raddr2_eq && valid_5;
 
 // GPR
 assign rf_raddr1 = rj;
