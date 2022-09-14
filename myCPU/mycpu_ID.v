@@ -51,7 +51,7 @@ reg [63:0] upstream_input;
 
 always @(posedge clk ) begin
     if (reset) upstream_input <= 64'b0;
-    if (valid_1 && allow_3)
+    if (valid_1 && allow_3 && ~exists_hazard)
         upstream_input <= stage_1_to_2;
 end
 
