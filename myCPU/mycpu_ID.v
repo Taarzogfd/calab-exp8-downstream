@@ -43,18 +43,22 @@ end
 assign allow_2 = ~br_inst || (br_inst && stage_2_blockflag); // 当前解码 Branch时，忽略Branch紧接下来的一条指令，在下一拍再由Branch决定。
 */
 
-assign allow_2=1'b1;
+assign allow_2=valid_2;
 
 //如果当前指令是分支，那么下一拍invalid
-//阻塞：如果当前出现写后读冲突，那么
+//阻塞：如果当前出现写后读冲突，那么设置invalid直到冲突消失
 always @(posedge clk) begin
     if (reset) valid_2<=1'b0;
     else if (~next_valid) valid_2<=1'b0;
     else valid_2<=valid_1;
 end
 
+wire hazard_block
+
 wire next_valid;
-assign next_valid = ~(br_taken && valid_2);
+wire next_invalid;
+assign next_invalid = br_taken && valid_2 || exists_hazard;
+assign next_valid   = ~next_invalid;
 
 reg [63:0] upstream_input;
 
@@ -157,6 +161,8 @@ wire fw5_hazard_1;  // 确实存在冲突
 wire fw3_hazard_2;  // 确实存在冲突
 wire fw4_hazard_2;  // 确实存在冲突
 wire fw5_hazard_2;  // 确实存在冲突
+
+wire exists_hazard;
 
 wire [31:0] alu_src1   ;
 wire [31:0] alu_src2   ;
@@ -288,6 +294,10 @@ assign fw5_raddr1_eq  = (rf_waddr_5_fwd == rf_raddr1);
 assign fw5_raddr2_eq  = (rf_waddr_5_fwd == rf_raddr2);
 assign fw5_hazard_1   = fw5_addrValid && fw5_raddr1_eq && valid_5;
 assign fw5_hazard_2   = fw5_addrValid && fw5_raddr2_eq && valid_5;
+
+assign exists_hazard = ((fw3_hazard_1 || fw4_hazard_1 || fw5_hazard_1) && (~src1_is_pc))|| 
+                       ((fw3_hazard_2 || fw4_hazard_2 || fw5_hazard_2) && (~src2_is_imm));
+
 
 // GPR
 assign rf_raddr1 = rj;
