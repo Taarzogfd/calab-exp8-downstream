@@ -132,6 +132,7 @@ wire        need_si26;
 wire        src2_is_4;
 
 
+wire        rf_re   ; //rf read-enable
 wire        rf_we   ;
 wire [ 4:0] rf_waddr;
 wire [31:0] rf_wdata;
@@ -266,8 +267,9 @@ assign dst_is_r1     = inst_bl;
         // GENERAL PURPOSE REGISTER WRITE-ENABLE
 assign rf_we         = ~inst_st_w & ~inst_beq & ~inst_bne & ~inst_b; //& ~inst_bl; 
 assign mem_we        = inst_st_w;
-assign mem_en    = (res_from_mem || mem_we);
+assign mem_en        = (res_from_mem || mem_we);
 assign dest          = dst_is_r1 ? 5'd1 : rd;
+assign rf_re         = ~inst_lu12i_w & ~inst_b & ~inst_bl;
 
 // Forwarded Addresses - Control Signals
 assign fw3_addrValid = |rf_waddr_3_fwd; // 若该阶段的rf_we=0，地址输入时直接为0
