@@ -37,7 +37,7 @@ assign allow_2=~exists_hazard;
 //如果当前指令是分支，那么下一拍invalid
 //阻塞：如果当前出现写后读冲突，那么设置invalid直到冲突消失
 
-reg valid_2_r;
+reg valid_2_r; // 因Branch而导致的invalid
 
 always @(posedge clk) begin
     if (reset) valid_2_r<=1'b0;
@@ -286,7 +286,7 @@ assign fw5_hazard_2   = fw5_addrValid && fw5_raddr2_eq && valid_5;
 
 assign exists_hazard = (((fw3_hazard_1 || fw4_hazard_1 || fw5_hazard_1) && (~src1_is_pc))|| 
                         ((fw3_hazard_2 || fw4_hazard_2 || fw5_hazard_2) && (~src2_is_imm)))
-                       && rf_re;
+                       && rf_re && valid_2_r;
 
 
 // GPR
