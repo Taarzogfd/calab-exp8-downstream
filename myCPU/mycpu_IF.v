@@ -46,7 +46,7 @@ end
 
 assign inst_sram_we    = 1'b0;
 assign inst_sram_en    = 1'b1;
-assign inst_sram_addr  = nextpc; //pc; changed for pipeline
+assign inst_sram_addr  = nextpc & {32{allow_2}} | pc & {32{~allow_2}}; //keep pc and instruction synced
 assign inst_sram_wdata = 32'b0;
 assign inst            = inst_sram_rdata;
 
