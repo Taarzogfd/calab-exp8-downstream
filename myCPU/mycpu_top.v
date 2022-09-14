@@ -91,7 +91,7 @@ stage_2_ID instantiation_ID  (
     .rf_rdata2 (rf_rdata2),
     .rf_waddr_3_fwd (rf_waddr_3_fwd),
     .rf_waddr_4_fwd (rf_waddr_4_fwd),
-    .rf_waddr_5_fwd (rf_we)
+    .rf_waddr_5_fwd (rf_waddr)
 );
 
 wire [38:0] stage_3_to_4;
