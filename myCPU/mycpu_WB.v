@@ -5,6 +5,7 @@ module stage_5_WB (
     // valid / allow
     input  wire valid_4,
     output wire allow_5,
+    output  reg valid_5,
 
     input  wire [69:0] stage_4_to_5,
 
@@ -17,7 +18,6 @@ module stage_5_WB (
 wire readygo_5;
 assign readygo_5=1'b1;
 
-reg valid_5;
 always @(posedge clk ) begin
     if (reset) valid_5<=1'b0;
     else valid_5<=valid_4;
