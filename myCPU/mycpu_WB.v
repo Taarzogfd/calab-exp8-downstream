@@ -43,7 +43,7 @@ wire rf_we_internal;
 assign {rf_we_internal,dest,final_result,pc}=upstream_input;
 assign rf_we=rf_we_internal&valid_5;
 
-assign rf_waddr=dest&{4{rf_we}};
+assign rf_waddr=dest&{5{rf_we}};
 assign rf_wdata=final_result;
 
 endmodule
