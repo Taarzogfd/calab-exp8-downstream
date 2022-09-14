@@ -9,7 +9,8 @@ module stage_3_EX (
     input  wire allow_4,
 
     input  wire [116:0] stage_2_to_3,
-    input  wire [31:0]  memory_write_data,
+    input  wire [31:0] memory_write_data,
+    output wire [ 4:0] rf_waddr_3_fwd,
     output wire [31:0] alu_result,
     output wire [31:0] data_sram_wdata,
     output wire [ 3:0] data_sram_we,
@@ -18,8 +19,11 @@ module stage_3_EX (
     output wire [38:0] stage_3_to_4
 );
 
+wire readygo_3;
+assign readygo_3=1'b1;
+
 always @(posedge clk ) begin
-    if (reset) valid_3<=1'b1;
+    if (reset) valid_3<=1'b0;
     else valid_3<=valid_2;
 end
 
@@ -59,6 +63,8 @@ alu u_alu(
     .alu_src2   (alu_src2  ),
     .alu_result (alu_result)
     );
+
+assign rf_waddr_3_fwd=dest&{5{rf_we}};
 
 assign stage_3_to_4={rf_we,dest,res_from_mem,pc};
 

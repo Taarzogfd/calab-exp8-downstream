@@ -20,6 +20,9 @@ module stage_1_IF(
 
 assign valid_1 = ~reset;
 
+wire readygo_1;
+assign readygo_1=1'b1;
+
 wire [31:0] ds_pc;
 wire [31:0] seq_pc;
 wire [31:0] nextpc;
@@ -36,7 +39,7 @@ always @(posedge clk) begin
         pc <= 32'h1c000000; 
         //pc <= 32'h1bff_fffc;
     end
-    else begin
+    else if(allow_2) begin
         pc <= nextpc;
     end
 end

@@ -5,7 +5,7 @@ module stage_2_ID (
     // valid / allow
     input  wire valid_1,
     output wire allow_2,
-    output wire valid_2,
+    output  reg valid_2,
     input  wire allow_3,
 
     input  wire [63:0] stage_1_to_2,
@@ -18,9 +18,15 @@ module stage_2_ID (
     input  wire [31:0] rf_rdata1,
     input  wire [31:0] rf_rdata2,
     output wire [ 4:0] rf_raddr1,
-    output wire [ 4:0] rf_raddr2
+    output wire [ 4:0] rf_raddr2,
 
+    input  wire [ 4:0] rf_waddr_3_fwd,
+    input  wire [ 4:0] rf_waddr_4_fwd,
+    input  wire [ 4:0] rf_waddr_5_fwd
 );
+
+wire readygo_2;
+assign readygo_2=1'b1;
 
 //assign valid_2=1'b1;
 
@@ -35,14 +41,15 @@ assign allow_2 = ~br_inst || (br_inst && stage_2_blockflag); // 当前解码 Bra
 
 assign allow_2=1'b1;
 
-reg next_valid; //如果当前指令是分支，那么下一拍invalid
-assign valid_2=next_valid;
+//如果当前指令是分支，那么下一拍invalid
 always @(posedge clk) begin
-    if (reset) next_valid<=1'b1;
-    else if (br_taken && next_valid) next_valid<=1'b0;
-    else if (~next_valid) next_valid<=valid_1;
+    if (reset) valid_2<=1'b0;
+    else if (~next_valid) valid_2<=1'b0;
+    else valid_2<=valid_1;
 end
 
+wire next_valid;
+assign next_valid = ~(br_taken && valid_2);
 
 reg [63:0] upstream_input;
 
@@ -124,6 +131,27 @@ wire        src2_is_4;
 wire        rf_we   ;
 wire [ 4:0] rf_waddr;
 wire [31:0] rf_wdata;
+
+// Address Forwarding 地址前递
+wire fw3_addrValid; // EX阶段的指令需要写寄存器
+wire fw4_addrValid; // AM阶段的指令需要写寄存器
+wire fw5_addrValid; // WB阶段的指令需要写寄存器
+
+wire fw3_raddr1_eq; // EX的 写地址 与 第1个 读地址 相同
+wire fw4_raddr1_eq; // AM的 写地址 与 第1个 读地址 相同
+wire fw5_raddr1_eq; // WB的 写地址 与 第1个 读地址 相同
+
+wire fw3_raddr2_eq; // EX的 写地址 与 第2个 读地址 相同
+wire fw4_raddr2_eq; // AM的 写地址 与 第2个 读地址 相同
+wire fw5_raddr2_eq; // WB的 写地址 与 第2个 读地址 相同
+
+wire fw3_hazard_1;  // 确实存在冲突
+wire fw4_hazard_1;  // 确实存在冲突
+wire fw5_hazard_1;  // 确实存在冲突
+
+wire fw3_hazard_2;  // 确实存在冲突
+wire fw4_hazard_2;  // 确实存在冲突
+wire fw5_hazard_2;  // 确实存在冲突
 
 wire [31:0] alu_src1   ;
 wire [31:0] alu_src2   ;
@@ -237,6 +265,24 @@ assign mem_we        = inst_st_w;
 assign mem_en    = (res_from_mem || mem_we);
 assign dest          = dst_is_r1 ? 5'd1 : rd;
 
+// Forwarded Addresses - Control Signals
+assign fw3_addrValid = |rf_waddr_3_fwd; // 若该阶段的rf_we=0，地址输入时直接为0
+assign fw3_raddr1_eq  = (rf_waddr_3_fwd == rf_raddr1);
+assign fw3_raddr2_eq  = (rf_waddr_3_fwd == rf_raddr2);
+assign fw3_hazard_1   = fw3_addrValid && fw3_raddr1_eq;
+assign fw3_hazard_2   = fw3_addrValid && fw3_raddr2_eq;
+
+assign fw4_addrValid = |rf_waddr_4_fwd; // 若该阶段的rf_we=0，地址输入时直接为0
+assign fw4_raddr1_eq  = (rf_waddr_4_fwd == rf_raddr1);
+assign fw4_raddr2_eq  = (rf_waddr_4_fwd == rf_raddr2);
+assign fw4_hazard_1   = fw4_addrValid && fw4_raddr1_eq;
+assign fw4_hazard_2   = fw4_addrValid && fw4_raddr2_eq;
+
+assign fw5_addrValid = |rf_waddr_5_fwd; // 若该阶段的rf_we=0，地址输入时直接为0
+assign fw5_raddr1_eq  = (rf_waddr_5_fwd == rf_raddr1);
+assign fw5_raddr2_eq  = (rf_waddr_5_fwd == rf_raddr2);
+assign fw5_hazard_1   = fw5_addrValid && fw5_raddr1_eq;
+assign fw5_hazard_2   = fw5_addrValid && fw5_raddr2_eq;
 
 // GPR
 assign rf_raddr1 = rj;

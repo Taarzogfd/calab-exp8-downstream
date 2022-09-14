@@ -27,7 +27,7 @@ wire valid_1; // the valid signal given by stage 1
 wire valid_2; // beq bne b 执行到此为止
 wire valid_3; 
 wire valid_4;
-//wire valid_5;
+wire valid_5;
 
 //wire allow_1;
 wire allow_2; // branch 类 指令需要阻塞
@@ -65,6 +65,9 @@ wire [31:0] rf_rdata2;
 wire [ 4:0] rf_raddr1;
 wire [ 4:0] rf_raddr2;
 
+wire [ 4:0] rf_waddr_3_fwd;
+wire [ 4:0] rf_waddr_4_fwd;
+
 wire [116:0] stage_2_to_3;
 wire [31:0]  memory_write_data;
 stage_2_ID instantiation_ID  (
@@ -82,7 +85,10 @@ stage_2_ID instantiation_ID  (
     .rf_raddr1 (rf_raddr1),
     .rf_raddr2 (rf_raddr2),
     .rf_rdata1 (rf_rdata1),
-    .rf_rdata2 (rf_rdata2)
+    .rf_rdata2 (rf_rdata2),
+    .rf_waddr_3_fwd (rf_waddr_3_fwd),
+    .rf_waddr_4_fwd (rf_waddr_4_fwd),
+    .rf_waddr_5_fwd (rf_we)
 );
 
 wire [38:0] stage_3_to_4;
@@ -101,7 +107,8 @@ wire [31:0] alu_result;
     .data_sram_wdata (data_sram_wdata),
     .data_sram_we (data_sram_we),
     .data_sram_en (data_sram_en),
-    .stage_3_to_4 (stage_3_to_4)
+    .stage_3_to_4 (stage_3_to_4),
+    .rf_waddr_3_fwd (rf_waddr_3_fwd)
 );
 
 assign data_sram_addr=alu_result;
@@ -117,7 +124,8 @@ wire [69:0] stage_4_to_5;
     .stage_3_to_4 (stage_3_to_4),
     .alu_result (alu_result),
     .data_sram_rdata (data_sram_rdata),
-    .stage_4_to_5 (stage_4_to_5)
+    .stage_4_to_5 (stage_4_to_5),
+    .rf_waddr_4_fwd (rf_waddr_4_fwd)
 );
 
  stage_5_WB instantiation_WB(
@@ -125,6 +133,7 @@ wire [69:0] stage_4_to_5;
     .reset (reset),
     .valid_4 (valid_4),
     .allow_5 (allow_5),
+    //.valid_5 (valid_5),
     .stage_4_to_5 (stage_4_to_5),
     .rf_we (rf_we),
     .rf_waddr (rf_waddr),

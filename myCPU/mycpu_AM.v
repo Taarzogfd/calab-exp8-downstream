@@ -10,14 +10,18 @@ module stage_4_AM (
 
     input wire [38:0]  stage_3_to_4,
     input wire [31:0] alu_result,
+    output wire [4:0] rf_waddr_4_fwd,
     input wire [31:0] data_sram_rdata,
     output wire [69:0] stage_4_to_5
 );
 
+wire readygo_4;
+assign readygo_4=1'b1;
+
 wire [31:0] pc;
 
 always @(posedge clk ) begin
-    if (reset) valid_4<=1'b1;
+    if (reset) valid_4<=1'b0;
     else valid_4<=valid_3;
 end
 
@@ -48,6 +52,8 @@ end
 
 assign mem_result   = data_sram_rdata;
 assign final_result = res_from_mem ? mem_result : alu_result_reg;
+
+assign rf_waddr_4_fwd=dest&{5{rf_we}};
 
 assign {rf_we,dest,res_from_mem,pc}=upstream_input;
 assign stage_4_to_5={rf_we,dest,final_result,pc};

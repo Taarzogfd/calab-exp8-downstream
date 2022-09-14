@@ -14,10 +14,13 @@ module stage_5_WB (
     output wire [31:0] debug_wb_pc
 );
 
-reg valid_4_reg;
+wire readygo_5;
+assign readygo_5=1'b1;
+
+reg valid_5;
 always @(posedge clk ) begin
-    if (reset) valid_4_reg<=1'b1;
-    else valid_4_reg<=valid_4;
+    if (reset) valid_5<=1'b0;
+    else valid_5<=valid_4;
 end
 
 assign allow_5=1'b1;
@@ -38,9 +41,9 @@ end
 
 wire rf_we_internal;
 assign {rf_we_internal,dest,final_result,pc}=upstream_input;
-assign rf_we=rf_we_internal&valid_4_reg;
+assign rf_we=rf_we_internal&valid_5;
 
-assign rf_waddr=dest;
+assign rf_waddr=dest&{4{rf_we}};
 assign rf_wdata=final_result;
 
 endmodule
