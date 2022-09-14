@@ -5,7 +5,7 @@ module stage_2_ID (
     // valid / allow
     input  wire valid_1,
     output wire allow_2,
-    output  reg valid_2,
+    output wire valid_2,
     input  wire allow_3,
 
     input  wire valid_3,
@@ -36,16 +36,16 @@ assign allow_2=~exists_hazard;
 
 //如果当前指令是分支，那么下一拍invalid
 //阻塞：如果当前出现写后读冲突，那么设置invalid直到冲突消失
+
+reg valid_2_r;
+
 always @(posedge clk) begin
-    if (reset) valid_2<=1'b0;
-    else if (~next_valid) valid_2<=1'b0;
-    else valid_2<=valid_1;
+    if (reset) valid_2_r<=1'b0;
+    else if (br_taken) valid_2_r<=1'b0;
+    else valid_2_r<=valid_1;
 end
 
-wire next_valid;
-wire next_invalid;
-assign next_invalid = br_taken && valid_2 || exists_hazard;
-assign next_valid   = ~next_invalid;
+assign valid_2 = valid_2_r && ~exists_hazard;
 
 reg [63:0] upstream_input;
 
