@@ -32,7 +32,7 @@ module stage_2_ID (
 wire readygo_2;
 assign readygo_2=1'b1;
 
-assign allow_2=exists_hazard;
+assign allow_2=~exists_hazard;
 
 //如果当前指令是分支，那么下一拍invalid
 //阻塞：如果当前出现写后读冲突，那么设置invalid直到冲突消失
