@@ -79,6 +79,7 @@ wire        dst_is_r1;
 wire        mem_we;
 wire        mem_en;
 wire        src_reg_is_rd;
+wire        rkd_re;
 wire [4: 0] dest;
 wire [31:0] rj_value;
 wire [31:0] rkd_value;
@@ -266,6 +267,7 @@ assign res_from_mem  = inst_ld_w;
 assign dst_is_r1     = inst_bl;
         // GENERAL PURPOSE REGISTER WRITE-ENABLE
 assign rf_we         = ~inst_st_w & ~inst_beq & ~inst_bne & ~inst_b; //& ~inst_bl; 
+assign rkd_re        = ~src2_is_imm || mem_we;
 assign mem_we        = inst_st_w;
 assign mem_en        = (res_from_mem || mem_we);
 assign dest          = dst_is_r1 ? 5'd1 : rd;
