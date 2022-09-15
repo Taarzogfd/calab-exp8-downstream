@@ -286,8 +286,8 @@ assign fw5_raddr2_eq  = (rf_waddr_5_fwd == rf_raddr2);
 assign fw5_hazard_1   = fw5_addrValid && fw5_raddr1_eq && valid_5;
 assign fw5_hazard_2   = fw5_addrValid && fw5_raddr2_eq && valid_5;
 
-assign exists_hazard = (((fw3_hazard_1 || fw4_hazard_1 || fw5_hazard_1) && (~src1_is_pc))|| 
-                        ((fw3_hazard_2 || fw4_hazard_2 || fw5_hazard_2) && (~src2_is_imm)))
+assign exists_hazard = (((fw3_hazard_1 || fw4_hazard_1 || fw5_hazard_1) && (rj_re))|| 
+                        ((fw3_hazard_2 || fw4_hazard_2 || fw5_hazard_2) && (rkd_re)))
                        && rf_re && valid_2_r;
 
 
